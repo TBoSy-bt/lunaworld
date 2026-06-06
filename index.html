@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LunaWorld — Discord виджет</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+        .discord-widget {
+            background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .avatar-glow {
+            box-shadow: 0 0 20px rgba(88, 101, 242, 0.3);
+        }
+        .status-online { background: #3ba55c; }
+        .status-offline { background: #747f8d; }
+        .loader {
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top: 3px solid #5865F2;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .hover-scale { transition: transform 0.2s ease; }
+        .hover-scale:hover { transform: scale(1.05); }
+    </style>
+</head>
+<body class="bg-[#0f0f1a] min-h-screen flex items-center justify-center p-4">
+
+    <div id="widget-container" class="discord-widget rounded-2xl p-6 max-w-[380px] w-full shadow-2xl relative overflow-hidden">
+        <!-- Фон с эффектом -->
+        <div class="absolute inset-0 bg-gradient-to-br from-[#5865F2]/5 to-[#3ba55c]/5 pointer-events-none"></div>
+
+        <!-- Шапка -->
+        <div class="relative flex items-center gap-4 mb-5">
+            <div class="w-14 h-14 rounded-xl bg-[#5865F2]/20 flex items-center justify-center text-2xl avatar-glow">
+                🌙
+            </div>
+            <div>
+                <h1 class="text-white font-extrabold text-2xl tracking-tight">LunaWorld</h1>
+                <div class="flex items-center gap-2 mt-0.5">
+                    <span class="w-2 h-2 rounded-full bg-[#3ba55c] animate-pulse"></span>
+                    <span class="text-gray-400 text-sm font-medium">онлайн</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Статистика -->
+        <div class="relative grid grid-cols-3 gap-2 mb-5 bg-black/20 rounded-xl p-3 backdrop-blur-sm">
+            <div class="text-center">
+                <div class="text-white font-bold text-xl" id="member-count">—</div>
+                <div class="text-gray-500 text-[10px] uppercase tracking-wider">участников</div>
+            </div>
+            <div class="text-center border-x border-white/5">
+                <div class="text-white font-bold text-xl" id="online-count">—</div>
+                <div class="text-gray-500 text-[10px] uppercase tracking-wider">онлайн</div>
+            </div>
+            <div class="text-center">
+                <div class="text-white font-bold text-xl" id="channel-count">—</div>
+                <div class="text-gray-500 text-[10px] uppercase tracking-wider">каналов</div>
+            </div>
+        </div>
+
+        <!-- Список участников -->
+        <div class="relative">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-gray-400 text-xs font-semibold uppercase tracking-wider">Сейчас на сервере</span>
+                <span class="text-gray-600 text-xs" id="member-list-count">0</span>
+            </div>
+            <div id="members-list" class="space-y-2 max-h-[300px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
+                <!-- Сюда будут загружаться участники -->
+                <div class="flex justify-center py-8">
+                    <div class="loader"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Кнопка -->
+        <div class="relative mt-5">
+            <a href="https://discord.gg/PasAEFkrqY" target="_blank"
+               class="block w-full py-3.5 bg-[#5865F2] hover:bg-[#4752c4] text-white font-bold rounded-xl text-center transition-all duration-300 hover:shadow-lg hover:shadow-[#5865F2]/25 hover-scale">
+                <span class="flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.118.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-4.597-.638-9.06-3.545-13.66a.061.061 0 0 0-.031-.03z"/>
+                    </svg>
+                    Присоединиться
+                </span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const GUILD_ID = '1512803812891562114';
+        const API_URL = `https://discord.com/api/guilds/${GUILD_ID}/widget.json`;
+
+        async function fetchDiscordData() {
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error('Ошибка загрузки');
+                const data = await response.json();
+
+                // Обновляем статистику
+                document.getElementById('member-count').textContent = data.members.length || 0;
+                document.getElementById('online-count').textContent = data.presence_count || 0;
+                document.getElementById('channel-count').textContent = data.channels?.length || 0;
+
+                // Обновляем список участников
+                const listContainer = document.getElementById('members-list');
+                const countSpan = document.getElementById('member-list-count');
+
+                if (data.members && data.members.length > 0) {
+                    // Сортируем: сначала онлайн, потом офлайн
+                    const sorted = [...data.members].sort((a, b) => {
+                        if (a.status === 'online' && b.status !== 'online') return -1;
+                        if (a.status !== 'online' && b.status === 'online') return 1;
+                        return 0;
+                    });
+
+                    countSpan.textContent = sorted.length;
+
+                    listContainer.innerHTML = sorted.slice(0, 15).map(member => `
+                        <div class="flex items-center gap-3 p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors group">
+                            <div class="relative">
+                                <img src="${member.avatar_url || 'https://cdn.discordapp.com/embed/avatars/0.png'}"
+                                     alt="${member.username}"
+                                     class="w-9 h-9 rounded-full object-cover border border-white/10 group-hover:border-white/20 transition-all"
+                                     loading="lazy"
+                                     onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                                <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full ${member.status === 'online' ? 'status-online' : 'status-offline'} border-2 border-[#1a1a2e]"></span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-white font-semibold text-sm truncate">${member.username}</div>
+                                <div class="text-gray-500 text-xs capitalize">${member.status === 'online' ? 'Онлайн' : 'Офлайн'}</div>
+                            </div>
+                            ${member.status === 'online' ? `<span class="text-[#3ba55c] text-xs font-medium">●</span>` : ''}
+                        </div>
+                    `).join('');
+                } else {
+                    listContainer.innerHTML = `<div class="text-center text-gray-500 text-sm py-4">Нет участников</div>`;
+                    countSpan.textContent = '0';
+                }
+
+            } catch (error) {
+                console.error('Ошибка виджета:', error);
+                document.getElementById('members-list').innerHTML = `
+                    <div class="text-center text-gray-500 text-sm py-4">
+                        ⚠️ Не удалось загрузить участников
+                    </div>
+                `;
+            }
+        }
+
+        // Загружаем данные при старте и каждые 30 секунд
+        fetchDiscordData();
+        setInterval(fetchDiscordData, 30000);
+    </script>
+
+</body>
+</html>
